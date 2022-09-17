@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <!-- namespace는 현재 파일에 정의된 SQL문 집합의 고유한 이름 -->
+ <!-- 보통은 SQL문을 실행할 Dao 인터페이스 이름으로 설정 -->
+
+
+<mapper namespace="com.exam.exspring.reply.ReplyDao">
+   
+    <insert id="insertReply" parameterType="com.exam.exspring.reply.ReplyVo">
+       INSERT INTO reply
+       (rep_no, rep_content, rep_writer, rep_reg_date, rep_bbs_no)
+       VALUES
+       (rep_seq.nextval , #{repContent}, #{repWriter}, SYSDATE ,#{repBbsNo})
+    </insert>
+    
+    <select id="selectReplyList" parameterType = "int" resultType="ReplyVo">
+        SELECT rep_no, rep_content, rep_writer, rep_reg_date, rep_bbs_no
+        FROM reply
+        WHERE rep_bbs_no = #{repBbsNo}
+    </select>
+    
+    <delete id = "deleteReply" parameterType="ReplyVo">
+        DELETE
+        FROM reply
+        WHERE rep_no = #{repNo} AND rep_writer = #{repWriter} <!-- 로그인한 사람 ID -->
+    
+    </delete>
+   
+</mapper>

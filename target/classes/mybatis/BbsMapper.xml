@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <!-- namespace는 현재 파일에 정의된 SQL문 집합의 고유한 이름 -->
+ <!-- 보통은 SQL문을 실행할 Dao 인터페이스 이름으로 설정 -->
+
+
+<mapper namespace="com.exam.exspring.bbs.BbsDao">
+   <!-- com.exam.member.MemberVo 객체의 --> 
+   <!-- <resultMap type="com.exam.exspring.member.MemberVo" id="memberMap">
+       memId 속성(변수,필드)에 mem_id 컬럼 값을 저장
+       pk 컬럼은 result 태그 대신 id태그를 사용
+       <id property="memId" column="mem_id" /> 컬럼의 값을 객체 변수에 넣어준다.
+	   <result property="memPass" column="mem_pass" />
+	   <result property="memName" column="mem_name" />
+	   <result property="memPoint" column="mem_point" />
+ 
+   </resultMap> -->
+
+<!--SQL문의 종류와 동일한 이름의 태그를 사용하여 SQL문을 등록
+    id는 현재 파일 내에서 현재 SQL문의 고유한 이름
+    보통은 SQL문을 실행할 Dao 인터페이스 메소드 이름으로 설정 -->
+<!-- SQL문 실행 결과 1개의 레코드를 담을 객체의 클래스명을 resultType 속성에 지정  -->
+<!--마이바티스는 기본적으로 resultType객체의 컬럼이름과 동일한 변수(속성,필드)에 컬럼의 값을 저장-->
+ <select id="selectBbsList"  resultType="BbsVo"> <!--MemverVo객체에 select문을 담아서 준다. parameterType은 insert의 ? 값에 값을 넣어줌 -->
+<!--   <select id="selectMemberList"  resultMap="memberMap"> -->   <!-- 낙타표기법으로 바꿔스 그이름의 변수로 놓어준다. -->
+<!--     SELECT mem_id memId, mem_pass memPass, mem_name memName, mem_point memPoint FROM member -->
+    SELECT bbs_no , bbs_title, bbs_writer, bbs_reg_date FROM bbs
+    <where>
+	    <if test="searchWord != null and searchWord != ''"> <!-- 중괄호 안에서는 #{속성값}을 쓰지 않는다. -->     
+	        <choose>
+	            <when test="searchType=='title'">
+	                bbs_title LIKE '%' || #{searchWord} || '%'
+	            </when>
+	            <when test="searchType=='content'">
+	                bbs_content LIKE '%' || #{searchWord} || '%'
+	            </when>
+	            <when test="searchType=='total'">
+	                bbs_title LIKE '%' || #{searchWord} || '%' 
+	                    OR bbs_content LIKE '%' || #{searchWord} || '%' 
+	            </when>
+	        </choose>  
+	    </if>
+    </where>
+  </select>
+  <select id="selectBbs" parameterType="int"  resultType="BbsVo"> <!-- BbsVo객체에 담는다. -->
+    SELECT bbs_no , bbs_title, bbs_content, bbs_writer, bbs_reg_date FROM bbs WHERE bbs_no= #{bbs_no} <!-- #{bbs_no}은 아무거나 써도 된다. -->
+  </select>
+  
+  <insert id="insertBbs" parameterType="BbsVo">
+    INSERT INTO BBS
+	(bbs_no , bbs_title, bbs_Content, bbs_writer, bbs_reg_date)
+     VALUES(bbs_seq.nextval, #{bbsTitle}, #{bbsContent}, #{bbsWriter}, sysdate)
+  </insert>
+  
+  <update id="updateBbs" parameterType="BbsVo">
+    UPDATE bbs
+	SET  bbs_title=#{bbsTitle}, bbs_content=#{bbsContent}
+    WHERE bbs_no=#{bbsNo} <!-- 컬럼이 아니라 속성을 넣어야한다. -->
+  </update>
+  
+  <delete id="delBbs" parameterType="int">   
+   <!-- 단일값을 갖는 파라미터를 받은 경우에는 속성이름(변수)이름이 무의미 value써도 된다.  -->
+    DELETE FROM bbs WHERE  bbs_no = #{bbsNo}
+  </delete>
+  
+  <select id="selectLoginMember" parameterType="MemberVo"  resultType="MemberVo"> 
+    SELECT mem_id, mem_name, mem_point FROM member WHERE mem_id= #{memId} and mem_pass = #{memPass} 
+    
+  </select>
+</mapper>
